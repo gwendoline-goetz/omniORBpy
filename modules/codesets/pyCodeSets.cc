@@ -19,9 +19,7 @@
 //    GNU Lesser General Public License for more details.
 //
 //    You should have received a copy of the GNU Lesser General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
-//    MA 02111-1307, USA
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 // Description:
 //    Codesets library
@@ -49,8 +47,33 @@ extern "C" {
   };
 
 
+#if (PY_VERSION_HEX < 0x03000000)
+
   void DLL_EXPORT init_omnicodesets()
   {
     PyObject* m = Py_InitModule((char*)"_omnicodesets", omnicodesets_methods);
   }
+
+#else
+
+  static struct PyModuleDef omnicodesetsmodule = {
+    PyModuleDef_HEAD_INIT,
+    "_omnicodesets",
+    "omniORBpy codesets",
+    -1,
+    omnicodesets_methods,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+  };
+
+  PyMODINIT_FUNC
+  PyInit__omnicodesets(void)
+  {
+    return PyModule_Create(&omnicodesetsmodule);
+  }
+
+#endif
+
 };

@@ -3,7 +3,7 @@
 // pyORBFunc.cc               Created on: 2000/02/04
 //                            Author    : Duncan Grisby (dpg1)
 //
-//    Copyright (C) 2003-2013 Apasphere Ltd
+//    Copyright (C) 2003-2014 Apasphere Ltd
 //    Copyright (C) 1999 AT&T Laboratories Cambridge
 //
 //    This file is part of the omniORBpy library
@@ -20,9 +20,7 @@
 //    GNU Lesser General Public License for more details.
 //
 //    You should have received a copy of the GNU Lesser General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
-//    MA 02111-1307, USA
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 //
 // Description:
@@ -42,7 +40,7 @@ extern "C" {
       CORBA::release(self->orb);
       CORBA::release(self->base.obj);
     }
-    self->base.ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
   }
 
   static PyObject*
@@ -90,7 +88,7 @@ extern "C" {
       str = self->orb->object_to_string(objref);
     }
     OMNIPY_CATCH_AND_HANDLE_SYSTEM_EXCEPTIONS
-    return PyString_FromString((char*)str);
+    return String_FromString((char*)str);
   }
 
   static PyObject*
@@ -138,7 +136,7 @@ extern "C" {
     PyObject* pyids = PyList_New(ids->length());
 
     for (CORBA::ULong i=0; i < ids->length(); i++) {
-      PyList_SetItem(pyids, i, PyString_FromString(ids[i]));
+      PyList_SetItem(pyids, i, String_FromString(ids[i]));
     }
     return pyids;
   }
@@ -186,7 +184,7 @@ extern "C" {
     }
     OMNIPY_CATCH_AND_HANDLE_SYSTEM_EXCEPTIONS
 
-    return PyInt_FromLong(pending);
+    return PyBool_FromLong(pending);
   }
 
   static PyObject*
@@ -221,7 +219,7 @@ extern "C" {
     }
     OMNIPY_CATCH_AND_HANDLE_SYSTEM_EXCEPTIONS
 
-    return PyInt_FromLong(shutdown);
+    return PyBool_FromLong(shutdown);
   }
 
   static PyObject*
@@ -303,8 +301,7 @@ extern "C" {
   };
 
   static PyTypeObject PyORBType = {
-    PyObject_HEAD_INIT(0)
-    0,                                 /* ob_size */
+    PyVarObject_HEAD_INIT(0,0)
     (char*)"_omnipy.PyORBObject",      /* tp_name */
     sizeof(PyORBObject),               /* tp_basicsize */
     0,                                 /* tp_itemsize */

@@ -20,9 +20,7 @@
 //    GNU Lesser General Public License for more details.
 //
 //    You should have received a copy of the GNU Lesser General Public
-//    License along with this library; if not, write to the Free
-//    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
-//    MA 02111-1307, USA
+//    License along with this library. If not, see http://www.gnu.org/licenses/
 //
 //
 // Description:
@@ -66,7 +64,6 @@ public:
 
     CORBA::Boolean   used;
     CORBA::Boolean   can_scavenge;
-    CORBA::Boolean   reused_state;
     int              active;
 
 #if PY_VERSION_HEX >= 0x02030000
@@ -92,16 +89,14 @@ public:
     PyThreadState* tstate = PyGILState_GetThisThreadState();
     if (tstate) {
       cn = 0;
-      PyEval_AcquireLock();
-      PyThreadState_Swap(tstate);
+      PyEval_RestoreThread(tstate);
     }
     else
 #endif
     {
       long id = PyThread_get_thread_ident();
       cn      = acquireNode(id);
-      PyEval_AcquireLock();
-      PyThreadState_Swap(cn->threadState);
+      PyEval_RestoreThread(cn->threadState);
     }
     return cn;
   }
@@ -109,8 +104,7 @@ public:
   // Release the global interpreter lock
   static inline void release(CacheNode* cn)
   {
-    PyThreadState_Swap(0);
-    PyEval_ReleaseLock();
+    PyEval_SaveThread();
     if (cn)
       releaseNode(cn);
   }

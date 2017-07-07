@@ -1,0 +1,156 @@
+Description: Enable building for debug builds of python
+ This allows one to build the modules for pydebug builds in the same
+ tree as the normal build by following normal distutils filename
+ convetions for pydebug extension modules (adding _d to the name).
+Forwarded: http://www.omniorb-support.com/pipermail/omniorb-list/2010-January/030475.html
+Author: Floris Bruynooghe <flub@devork.be>
+Last-Update: 2010-08-09
+
+--- a/examples/embed/dir.mk
++++ b/examples/embed/dir.mk
+@@ -16,8 +16,11 @@
+ CXXDEBUGFLAGS = -g
+ PYPREFIX  := $(shell $(PYTHON) -c 'import sys; print sys.exec_prefix')
+ PYVERSION := $(shell $(PYTHON) -c 'import sys; print sys.version[:3]')
++PYINCBASE := $(shell $(PYTHON) -c 'import distutils.sysconfig, os.path; print os.path.basename(distutils.sysconfig.get_config_var("INCLUDEPY"))')
++PY_SHAREDLIB_SUFFIX := $(shell $(PYTHON) -c 'import distutils.sysconfig; print distutils.sysconfig.get_config_var("SHLIB_EXT")')
++
+ PYINCDIR  := $(PYPREFIX)/include
+-PYINCFILE := "<python$(PYVERSION)/Python.h>"
++PYINCFILE := "<$(PYINCBASE)/Python.h>"
+ DIR_CPPFLAGS += -I$(PYINCDIR) -DPYTHON_INCLUDE=$(PYINCFILE)
+ endif
+ 
+@@ -26,9 +29,9 @@
+ 
+ namespec := _embedmodule _ 1 0
+ 
+-SharedLibraryFullNameTemplate = $$1$$2.$(SHAREDLIB_SUFFIX).$$3.$$4
+-SharedLibrarySoNameTemplate   = $$1$$2.$(SHAREDLIB_SUFFIX).$$3
+-SharedLibraryLibNameTemplate  = $$1$$2.$(SHAREDLIB_SUFFIX)
++SharedLibraryFullNameTemplate = $$1$$2$(PY_SHAREDLIB_SUFFIX).$$3.$$4
++SharedLibrarySoNameTemplate   = $$1$$2$(PY_SHAREDLIB_SUFFIX).$$3
++SharedLibraryLibNameTemplate  = $$1$$2$(PY_SHAREDLIB_SUFFIX)
+ 
+ ifdef PythonLibraryPlatformLinkFlagsTemplate
+ SharedLibraryPlatformLinkFlagsTemplate = $(PythonLibraryPlatformLinkFlagsTemplate)
+--- a/modules/codesets/dir.mk
++++ b/modules/codesets/dir.mk
+@@ -22,9 +22,12 @@
+ 
+ PYPREFIX  := $(shell $(PYTHON) -c 'import sys; print sys.exec_prefix')
+ PYVERSION := $(shell $(PYTHON) -c 'import sys; print sys.version[:3]')
++PYINCBASE := $(shell $(PYTHON) -c 'import distutils.sysconfig, os.path; print os.path.basename(distutils.sysconfig.get_config_var("INCLUDEPY"))')
++PY_SHAREDLIB_SUFFIX := $(shell $(PYTHON) -c 'import distutils.sysconfig; print distutils.sysconfig.get_config_var("SHLIB_EXT")')
++
+ PYINCDIR  := $(PYPREFIX)/include
+-PYINCFILE := "<python$(PYVERSION)/Python.h>"
+-PYINCTHRD := "<python$(PYVERSION)/pythread.h>"
++PYINCFILE := "<$(PYINCBASE)/Python.h>"
++PYINCTHRD := "<$(PYINCBASE)/pythread.h>"
+ DIR_CPPFLAGS += -I$(PYINCDIR) -DPYTHON_INCLUDE=$(PYINCFILE) -DPYTHON_THREAD_INC=$(PYINCTHRD)
+ DIR_CPPFLAGS += $(CORBA_CPPFLAGS)
+ 
+@@ -43,9 +46,9 @@
+ SHAREDLIB_SUFFIX = $(PythonSHAREDLIB_SUFFIX)
+ endif
+ 
+-SharedLibraryFullNameTemplate = $$1$$2.$(SHAREDLIB_SUFFIX).$$3.$$4
+-SharedLibrarySoNameTemplate   = $$1$$2.$(SHAREDLIB_SUFFIX).$$3
+-SharedLibraryLibNameTemplate  = $$1$$2.$(SHAREDLIB_SUFFIX)
++SharedLibraryFullNameTemplate = $$1$$2$(PY_SHAREDLIB_SUFFIX).$$3.$$4
++SharedLibrarySoNameTemplate   = $$1$$2$(PY_SHAREDLIB_SUFFIX).$$3
++SharedLibraryLibNameTemplate  = $$1$$2$(PY_SHAREDLIB_SUFFIX)
+ 
+ ifdef PythonLibraryPlatformLinkFlagsTemplate
+ SharedLibraryPlatformLinkFlagsTemplate = $(PythonLibraryPlatformLinkFlagsTemplate)
+--- a/modules/connections/dir.mk
++++ b/modules/connections/dir.mk
+@@ -20,9 +20,12 @@
+ 
+ PYPREFIX  := $(shell $(PYTHON) -c 'import sys; print sys.exec_prefix')
+ PYVERSION := $(shell $(PYTHON) -c 'import sys; print sys.version[:3]')
++PYINCBASE := $(shell $(PYTHON) -c 'import distutils.sysconfig, os.path; print os.path.basename(distutils.sysconfig.get_config_var("INCLUDEPY"))')
++PY_SHAREDLIB_SUFFIX := $(shell $(PYTHON) -c 'import distutils.sysconfig; print distutils.sysconfig.get_config_var("SHLIB_EXT")')
++
+ PYINCDIR  := $(PYPREFIX)/include
+-PYINCFILE := "<python$(PYVERSION)/Python.h>"
+-PYINCTHRD := "<python$(PYVERSION)/pythread.h>"
++PYINCFILE := "<$(PYINCBASE)/Python.h>"
++PYINCTHRD := "<$(PYINCBASE)/pythread.h>"
+ DIR_CPPFLAGS += -I$(PYINCDIR) -DPYTHON_INCLUDE=$(PYINCFILE) -DPYTHON_THREAD_INC=$(PYINCTHRD)
+ DIR_CPPFLAGS += $(CORBA_CPPFLAGS)
+ 
+@@ -50,9 +53,9 @@
+ SHAREDLIB_SUFFIX = $(PythonSHAREDLIB_SUFFIX)
+ endif
+ 
+-SharedLibraryFullNameTemplate = $$1$$2.$(SHAREDLIB_SUFFIX).$$3.$$4
+-SharedLibrarySoNameTemplate   = $$1$$2.$(SHAREDLIB_SUFFIX).$$3
+-SharedLibraryLibNameTemplate  = $$1$$2.$(SHAREDLIB_SUFFIX)
++SharedLibraryFullNameTemplate = $$1$$2$(PY_SHAREDLIB_SUFFIX).$$3.$$4
++SharedLibrarySoNameTemplate   = $$1$$2$(PY_SHAREDLIB_SUFFIX).$$3
++SharedLibraryLibNameTemplate  = $$1$$2$(PY_SHAREDLIB_SUFFIX)
+ 
+ ifdef PythonLibraryPlatformLinkFlagsTemplate
+ SharedLibraryPlatformLinkFlagsTemplate = $(PythonLibraryPlatformLinkFlagsTemplate)
+--- a/modules/dir.mk
++++ b/modules/dir.mk
+@@ -74,9 +74,12 @@
+ 
+ PYPREFIX  := $(shell $(PYTHON) -c 'import sys; print sys.exec_prefix')
+ PYVERSION := $(shell $(PYTHON) -c 'import sys; print sys.version[:3]')
++PYINCBASE := $(shell $(PYTHON) -c 'import distutils.sysconfig, os.path; print os.path.basename(distutils.sysconfig.get_config_var("INCLUDEPY"))')
++PY_SHAREDLIB_SUFFIX := $(shell $(PYTHON) -c 'import distutils.sysconfig; print distutils.sysconfig.get_config_var("SHLIB_EXT")')
++
+ PYINCDIR  := $(PYPREFIX)/include
+-PYINCFILE := "<python$(PYVERSION)/Python.h>"
+-PYINCTHRD := "<python$(PYVERSION)/pythread.h>"
++PYINCFILE := "<$(PYINCBASE)/Python.h>"
++PYINCTHRD := "<$(PYINCBASE)/pythread.h>"
+ DIR_CPPFLAGS += -I$(PYINCDIR) -DPYTHON_INCLUDE=$(PYINCFILE) -DPYTHON_THREAD_INC=$(PYINCTHRD)
+ DIR_CPPFLAGS += $(CORBA_CPPFLAGS)
+ 
+@@ -95,9 +98,9 @@
+ SHAREDLIB_SUFFIX = $(PythonSHAREDLIB_SUFFIX)
+ endif
+ 
+-SharedLibraryFullNameTemplate = $$1$$2.$(SHAREDLIB_SUFFIX).$$3.$$4
+-SharedLibrarySoNameTemplate   = $$1$$2.$(SHAREDLIB_SUFFIX).$$3
+-SharedLibraryLibNameTemplate  = $$1$$2.$(SHAREDLIB_SUFFIX)
++SharedLibraryFullNameTemplate = $$1$$2$(PY_SHAREDLIB_SUFFIX).$$3.$$4
++SharedLibrarySoNameTemplate   = $$1$$2$(PY_SHAREDLIB_SUFFIX).$$3
++SharedLibraryLibNameTemplate  = $$1$$2$(PY_SHAREDLIB_SUFFIX)
+ 
+ ifdef PythonLibraryPlatformLinkFlagsTemplate
+ SharedLibraryPlatformLinkFlagsTemplate = $(PythonLibraryPlatformLinkFlagsTemplate)
+--- a/modules/sslTP/dir.mk
++++ b/modules/sslTP/dir.mk
+@@ -21,9 +21,12 @@
+ 
+ PYPREFIX  := $(shell $(PYTHON) -c 'import sys; print sys.exec_prefix')
+ PYVERSION := $(shell $(PYTHON) -c 'import sys; print sys.version[:3]')
++PYINCBASE := $(shell $(PYTHON) -c 'import distutils.sysconfig, os.path; print os.path.basename(distutils.sysconfig.get_config_var("INCLUDEPY"))')
++PY_SHAREDLIB_SUFFIX := $(shell $(PYTHON) -c 'import distutils.sysconfig; print distutils.sysconfig.get_config_var("SHLIB_EXT")')
++
+ PYINCDIR  := $(PYPREFIX)/include
+-PYINCFILE := "<python$(PYVERSION)/Python.h>"
+-PYINCTHRD := "<python$(PYVERSION)/pythread.h>"
++PYINCFILE := "<$(PYINCBASE)/Python.h>"
++PYINCTHRD := "<$(PYINCBASE)/pythread.h>"
+ DIR_CPPFLAGS += -I$(PYINCDIR) -DPYTHON_INCLUDE=$(PYINCFILE) -DPYTHON_THREAD_INC=$(PYINCTHRD)
+ DIR_CPPFLAGS += $(CORBA_CPPFLAGS)
+ 
+@@ -45,9 +48,9 @@
+ SHAREDLIB_SUFFIX = $(PythonSHAREDLIB_SUFFIX)
+ endif
+ 
+-SharedLibraryFullNameTemplate = $$1$$2.$(SHAREDLIB_SUFFIX).$$3.$$4
+-SharedLibrarySoNameTemplate   = $$1$$2.$(SHAREDLIB_SUFFIX).$$3
+-SharedLibraryLibNameTemplate  = $$1$$2.$(SHAREDLIB_SUFFIX)
++SharedLibraryFullNameTemplate = $$1$$2$(PY_SHAREDLIB_SUFFIX).$$3.$$4
++SharedLibrarySoNameTemplate   = $$1$$2$(PY_SHAREDLIB_SUFFIX).$$3
++SharedLibraryLibNameTemplate  = $$1$$2$(PY_SHAREDLIB_SUFFIX)
+ 
+ ifdef PythonLibraryPlatformLinkFlagsTemplate
+ SharedLibraryPlatformLinkFlagsTemplate = $(PythonLibraryPlatformLinkFlagsTemplate)

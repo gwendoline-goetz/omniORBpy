@@ -1,0 +1,20 @@
+Description: Don't show insecure modification of PYTHONPATH in documentation
+ As detected by #605188 there are few places where the OmniORBpy
+ documentation recommends insucure modifying of PYTHONPATH.  This patch
+ attempts to fix this.
+ Since version 3.6 these where mostly cleaned up upstream.
+Forwarded: http://www.omniorb-support.com/pipermail/omniorb-dev/2011-March/000311.html
+Author: Floris Bruynooghe <flub@devork.be>
+Last-Update: 2011-03-29
+
+--- a/doc/tex/omniORBpy.tex
++++ b/doc/tex/omniORBpy.tex
+@@ -350,7 +350,7 @@
+ On Unix platforms, set \envvar{PYTHONPATH} with a command like:
+ 
+ \begin{verbatim}
+-   export $TOP/lib/python:$TOP/lib/$FARCH
++   export PYTHONPATH=$TOP/lib/python:$TOP/lib/$FARCH
+ \end{verbatim}
+ 
+ On Windows, use
